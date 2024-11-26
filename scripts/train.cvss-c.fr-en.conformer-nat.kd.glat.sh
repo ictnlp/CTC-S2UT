@@ -1,0 +1,31 @@
+exp=cvss-c.fr-en.conformer-nat.kd.glat
+fairseq-train data/ctcs2ut/fr-en/unit_kd \
+  --user-dir CTCS2UT \
+  --config-yaml config.yaml \
+  --task nat_speech_to_text_ctc --noise full_mask \
+  --arch s2t_conformer_ctc_glat --share-decoder-input-output-embed \
+  --pos-enc-type rel_pos --decoder-learned-pos --attn-type espnet \
+  --apply-bert-init \
+  --encoder-layers 12 --encoder-embed-dim 256 --encoder-ffn-embed-dim 2048 --encoder-attention-heads 4 \
+  --decoder-layers 6 --decoder-embed-dim 512 --decoder-ffn-embed-dim 2048 --decoder-attention-heads 8 \
+  --max-source-positions 6000 --max-target-positions 2048 --src-upsample-ratio 2 --plain-ctc \
+  --criterion nat_loss_glat \
+  --src-embedding-copy \
+  --glat-p 0.5:0.3@100k \
+  --optimizer adam --adam-betas '(0.9,0.98)' --fp16 \
+  --label-smoothing 0.01 --weight-decay 0.01 --dropout 0.3 --attention-dropout 0.3 --relu-dropout 0.3 \
+  --lr-scheduler inverse_sqrt  --warmup-updates 10000 \
+  --clip-norm 1.0 --lr 1e-3 --warmup-init-lr 1e-7 --stop-min-lr 1e-9 \
+  --ddp-backend=legacy_ddp --patience 10 \
+  --max-tokens 20000 --update-freq 4 --grouped-shuffling \
+  --max-update 200000 --max-tokens-valid 20000 \
+  --save-interval 1 --save-interval-updates 2000 \
+  --seed 1 \
+  --train-subset train --valid-subset dev \
+  --validate-interval 1000 --validate-interval-updates 2000 \
+  --save-dir checkpoints/$exp \
+  --keep-best-checkpoints 5 \
+  --keep-interval-updates 5 --keep-last-epochs 5 \
+  --no-progress-bar --log-format json --log-interval 100 \
+  --load-pretrained-encoder-from checkpoints/cvss-c.fr-en.conformer-at/checkpoint_best.pt \
+  --num-workers 0

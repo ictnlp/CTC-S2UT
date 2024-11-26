@@ -1,0 +1,23 @@
+exp=cvss-c.fr-en.conformer-at
+fairseq-train data/ctcs2ut/fr-en/unit_raw \
+  --user-dir CTCS2UT \
+  --config-yaml config.yaml \
+  --task speech_to_text_modified \
+  --criterion label_smoothed_cross_entropy --label-smoothing 0.1 --report-accuracy \
+  --arch s2t_conformer --share-decoder-input-output-embed \
+  --encoder-layers 12 --encoder-embed-dim 256 --encoder-ffn-embed-dim 2048 --encoder-attention-heads 4 \
+  --decoder-layers 6 --decoder-embed-dim 512 --decoder-ffn-embed-dim 2048 --decoder-attention-heads 8 \
+  --dropout 0.3 --attention-dropout 0.3 --relu-dropout 0.3 \
+  --train-subset train --valid-subset dev \
+  --save-dir checkpoints/$exp \
+  --ddp-backend=legacy_ddp --patience 10 --fp16 \
+  --no-progress-bar --log-format json --log-interval 100 \
+  --lr 1e-3 --lr-scheduler inverse_sqrt --warmup-init-lr 1e-7 --warmup-updates 10000 \
+  --optimizer adam --adam-betas "(0.9,0.98)" --clip-norm 1.0 \
+  --max-update 200000 --max-tokens 20000 --update-freq 4 \
+  --save-interval 1 --save-interval-updates 2000 \
+  --validate-interval 1000 --validate-interval-updates 2000 \
+  --seed 1 --num-workers 8 \
+  --keep-best-checkpoints 5 \
+  --keep-interval-updates 5 --keep-last-epochs 5 \
+  --attn-type espnet --pos-enc-type rel_pos
